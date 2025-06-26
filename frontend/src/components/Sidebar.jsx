@@ -1,6 +1,6 @@
 import React from 'react';
 import NodePalette from './NodePalette';
-import './Sidebar.css';
+import '../components styles/Sidebar.css';
 
 function Sidebar({ visible, onClose }) {
   return (
