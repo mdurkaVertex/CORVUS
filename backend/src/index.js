@@ -12,3 +12,6 @@ app.get('/', (req, res) => {
 app.listen(3001, () => {
   console.log('🚀 Backend running on http://localhost:3001');
 });
+
+const openAiRoute = require('./routes/openai.route');
+app.use('/api/openai', openAiRoute);
