@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Handle, Position, useReactFlow } from 'reactflow';
-import openaiIcon from '../assets/openai_logo.png';
+import openaiIcon from '../assets/chatgpt.png';
 import OpenAiNodeConfig from '../components/OpenAiNodeConfig';
 
 function OpenAiNode({ id, data }) {
