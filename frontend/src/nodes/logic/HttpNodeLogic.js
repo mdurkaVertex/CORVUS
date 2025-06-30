@@ -17,4 +17,9 @@ export default class HttpNodeLogic extends BaseNodeLogic {
       return `HTTP error: ${err.message}`;
     }
   }
+
+  validate() {
+    if (!this.data.url) return `Missing URL in HTTP node "${this.id}".`;
+    return null;
+  }
 }

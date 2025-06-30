@@ -9,7 +9,18 @@ validate() {
   return { valid: true };
 }
 
-  async execute() {
+  async execute() 
+  {
+
+    const input = this.getInputData(); // ← może być null
+    console.log('🔁 INPUT DO OPENAI:', input);
+    const prompt = (this.data.prompt || '').replace('{{input}}', input ?? '');
+
+    const fullPrompt = input
+      ? `${prompt}\n\nAdditional input data:\n${typeof input === 'object' ? JSON.stringify(input, null, 2) : input}`
+      : prompt;
+
+    console.log(fullPrompt);
 
     try {
       const response = await fetch('http://localhost:8000/testAgent', {
@@ -17,7 +28,7 @@ validate() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
         apiKey: localStorage.getItem('openai_key'),
-        prompt: this.data.prompt,
+        prompt: fullPrompt,
         tool: this.data.tool,
       }),
     });
@@ -25,7 +36,7 @@ validate() {
       const json = await response.json();
       return json.output || json.error || 'no response';
     } catch (err) {
-      return `Błąd: ${err.message}`;
+      return `Open AI error: ${err.message}`;
     }
   }
 }

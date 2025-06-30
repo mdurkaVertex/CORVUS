@@ -5,6 +5,7 @@ export default class FlowEngine {
     this.nodes = nodes;
     this.edges = edges;
     this.setNodes = setNodes;
+    this.executedNodes = new Set(); // 🧠 zapobiegamy wielokrotnemu wykonaniu
   }
 
   getNodeById(id) {
@@ -12,37 +13,83 @@ export default class FlowEngine {
   }
 
   async executeFrom(startNodeId) {
-    let currentId = startNodeId;
+    if (!startNodeId || this.executedNodes.has(startNodeId)) return;
+    this.executedNodes.add(startNodeId);
 
-    while (currentId) {
-      const node = this.getNodeById(currentId);
-      const LogicClass = logicRegistry.getLogic(node.type);
+    // 🟡 Set status to "executing"
+    this.setNodes((prev) =>
+      prev.map((n) =>
+        n.id === startNodeId ? { ...n, data: { ...n.data, status: 'executing' } } : n
+      )
+    );
 
-      if (!LogicClass) {
-        console.warn(`No logic class for node type: ${node.type}`);
-        break;
-      }
+    await new Promise((r) => setTimeout(r, 100)); // mikro delay
 
-      const logic = new LogicClass({
-        id: node.id,
-        data: node.data,
-        edges: this.edges,
-        nodes: this.nodes,
-      });
+    const node = this.getNodeById(startNodeId);
+    const LogicClass = logicRegistry.getLogic(node.type);
 
-      const output = await logic.execute();
-      const nextId = logic.getNextNodeId();
-
-      // aktualizacja danych node'a docelowego
+    if (!LogicClass) {
+      console.warn(`⚠ No logic class found for type "${node.type}"`);
       this.setNodes((prev) =>
         prev.map((n) =>
-          n.id === nextId
-            ? { ...n, data: { ...n.data, output } }
+          n.id === startNodeId ? { ...n, data: { ...n.data, status: 'error' } } : n
+        )
+      );
+      return;
+    }
+
+    const logic = new LogicClass({
+      id: node.id,
+      data: node.data,
+      edges: this.edges,
+      nodes: this.nodes,
+    });
+
+    let output;
+    try {
+      output = await logic.execute();
+
+      // 🟢 Success
+      this.setNodes((prev) =>
+        prev.map((n) =>
+          n.id === startNodeId ? { ...n, data: { ...n.data, status: 'success', output } } : n
+        )
+      );
+    } catch (err) {
+      console.error(`❌ Error in node ${startNodeId}:`, err);
+      this.setNodes((prev) =>
+        prev.map((n) =>
+          n.id === startNodeId
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  status: 'error',
+                  output: err.message || 'Execution failed',
+                },
+              }
             : n
         )
       );
+      return;
+    }
 
-      currentId = nextId;
+    // 🔄 Get all connected targets
+    const nextIds = this.edges
+      .filter((e) => e.source === startNodeId)
+      .map((e) => e.target);
+
+    for (const nextId of nextIds) {
+
+      console.log(`➡️ Sending output from ${startNodeId} to ${nextId}:`, output);
+
+      this.setNodes((prev) =>
+        prev.map((n) =>
+          n.id === nextId ? { ...n, data: { ...n.data, input: output } } : n
+        )
+      );
+
+      await this.executeFrom(nextId);
     }
   }
 }

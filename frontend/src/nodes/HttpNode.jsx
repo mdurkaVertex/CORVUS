@@ -1,14 +1,29 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import httpIcon from '../assets/http_logo.png';
+import useNodeContextMenuHandler from '../hooks/useNodeContextMenuHandler';
+import useNodeErrorTooltip from '../hooks/useNodeErrorTooltip';
 
-function HttpNode({ data }) {
+function HttpNode({ id, data }) {
+
+  const borderColor = 
+  {
+  success: '#3aff64',
+  executing: '#ffcc00',
+  error: '#fa3434',
+  }[data.status] || '#fa6926';
+
+  const handleContextMenu = useNodeContextMenuHandler(id);
+  const { title } = useNodeErrorTooltip(id, data);
+
   return (
     <div
+      title={title}
+      onContextMenu={handleContextMenu}
       style={{
         background: '#2c2c2c',
         color: '#fff',
-        border: '1px solid #fa6926',
+        border: `2px solid ${borderColor}`,
         borderRadius: 6,
         padding: 10,
         display: 'flex',

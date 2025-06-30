@@ -1,31 +1,43 @@
 export default class BaseNodeLogic {
-  constructor({ id, data, edges, nodes }) {
+  constructor({ id, data, edges = [], nodes = [] }) {
     this.id = id;
     this.data = data;
-    this.edges = edges || [];
-    this.nodes = nodes || [];
+    this.edges = edges;
+    this.nodes = nodes;
   }
 
   /**
-   * Zwraca ID pierwszego node'a docelowego (output).
+   * Zwraca ID wszystkich node'ów, do których ten node prowadzi (wyjścia).
    */
-  getNextNodeId() {
-    const edge = this.edges.find((e) => e.source === this.id);
-    return edge?.target || null;
+  getNextNodeIds() {
+    return this.edges
+      .filter((edge) => edge.source === this.id)
+      .map((edge) => edge.target);
   }
-  getInputData() {
-  const inputEdge = this.edges.find((e) => e.target === this.id);
-  if (!inputEdge) return null;
-
-  const sourceNode = this.nodes.find((n) => n.id === inputEdge.source);
-  return sourceNode?.data?.output || null;
-}
-
 
   /**
-   * Wykonuje logikę node'a – do nadpisania w klasach potomnych.
+   * Zwraca dane wyjściowe z pierwszego node'a wejściowego (pierwszy input).
+   * W przyszłości można dodać tryb agregacji.
+   */
+  getInputData() {
+    const inputEdge = this.edges.find((edge) => edge.target === this.id);
+    if (!inputEdge) return null;
+
+    const sourceNode = this.nodes.find((node) => node.id === inputEdge.source);
+    return sourceNode?.data?.output ?? null;
+  }
+
+  /**
+   * Główna metoda wykonawcza – do nadpisania przez klasy potomne.
    */
   async execute() {
     throw new Error(`Node logic for "${this.id}" has no execute() implementation.`);
+  }
+
+  /**
+   * Walidacja konfiguracji – opcjonalna. Zwraca null lub string z błędem.
+   */
+  validate() {
+    return null;
   }
 }

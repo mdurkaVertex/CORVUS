@@ -4,7 +4,8 @@ const nodeTypes = [
   { type: 'openai', label: 'OpenAI' },
   { type: 'http', label: 'HTTP Request' },
   { type: 'delay', label: 'Delay' },
-  { type: 'result', label: 'Result' }
+  { type: 'result', label: 'Result' },
+  { type: 'email', label: 'Email'}
 ];
 
 function NodePalette() {

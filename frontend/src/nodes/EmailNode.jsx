@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Handle, Position, useReactFlow } from 'reactflow';
-import openaiIcon from '../assets/chatgpt.png';
-import OpenAiNodeConfig from '../components/OpenAiNodeConfig';
+import emailIcon from '../assets/email_icon.png'; 
+import EmailNodeConfig from '../components/EmailNodeConfig';
 import useNodeContextMenuHandler from '../hooks/useNodeContextMenuHandler';
 import useNodeErrorTooltip from '../hooks/useNodeErrorTooltip';
 
-
-function OpenAiNode({ id, data }) {
+function EmailNode({ id, data }) {
   const [showConfig, setShowConfig] = useState(false);
   const { setNodes } = useReactFlow();
 
@@ -25,42 +24,30 @@ function OpenAiNode({ id, data }) {
   error: '#fa3434',
   }[data.status] || '#fa6926';
 
-  const connectionStatus = data?.connectionStatus;
   const handleContextMenu = useNodeContextMenuHandler(id);
   const { title } = useNodeErrorTooltip(id, data);
 
   return (
-    <div
+    <div 
       title={title}
       onContextMenu={handleContextMenu}
       style={{
-        background: '#2c2c2c',
-        color: '#fff',
-        border: `2px solid ${borderColor}`,
-        borderRadius: 6,
-        padding: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 100,
-      }}
-    >
-      <img src={openaiIcon} alt="OpenAI" style={{ width: 40, height: 40, marginBottom: 5 }} />
+      background: '#2c2c2c',
+      color: '#fff',
+      border: `2px solid ${borderColor}`,
+      borderRadius: 6,
+      padding: 10,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      minWidth: 120
+    }}>
+      <img src={emailIcon} alt="Email" style={{ width: 40, height: 40 }} />
       <div>{data.label}</div>
-
-      <div style={{ fontSize: '0.8em', color: '#aaa', marginBottom: 4 }}>
-        🔁 Optional input from previous node
-      </div>
-
-      {/* Status wizualny */}
-      {connectionStatus === 'valid' && <div style={{ color: '#3aff64', fontSize: 14 }}>✔</div>}
-      {connectionStatus === 'invalid' && <div style={{ color: '#fa6926', fontSize: 14 }}>✖</div>}
-
       <button onClick={() => setShowConfig(true)}>⚙</button>
 
       {showConfig && (
-        <OpenAiNodeConfig
+        <EmailNodeConfig
           config={data}
           onSave={handleSave}
           onClose={() => setShowConfig(false)}
@@ -73,4 +60,4 @@ function OpenAiNode({ id, data }) {
   );
 }
 
-export default OpenAiNode;
+export default EmailNode;

@@ -51,12 +51,12 @@ function OpenAiNodeConfig({ onClose, onSave, config }) {
     <div className="node-config-overlay">
       <div className="node-config-modal">
         <div className="node-config-header">
-          <h3>Konfiguracja OpenAI</h3>
+          <h3>Open AI node config</h3>
           <button onClick={onClose}>×</button>
         </div>
         <div className="node-config-body">
 
-          <label>Klucz API (globalny):</label>
+          <label>API key (global):</label>
           <p
             style={{
             backgroundColor: '#1e1e1e',
@@ -73,7 +73,7 @@ function OpenAiNodeConfig({ onClose, onSave, config }) {
           <label>Tool:</label>
 
           <select value={tool} onChange={(e) => setTool(e.target.value)}>
-            <option value="none">Brak</option>
+            <option value="none">None</option>
             <option value="web_search_preview">Web Search</option>
           </select>
 

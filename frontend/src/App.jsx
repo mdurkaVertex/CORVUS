@@ -10,10 +10,13 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Sidebar from './components/Sidebar';
+
 import OpenAiNode from './nodes/OpenAiNode';
 import HttpNode from './nodes/HttpNode';
 import DelayNode from './nodes/DelayNode';
 import ResultNode from './nodes/ResultNode';
+import EmailNode from './nodes/EmailNode';
+
 import FlowEngine from './engine/FlowEngine';
 import logicRegistry from './engine/initLogicRegistry';
 
@@ -22,6 +25,7 @@ const nodeTypes = {
   http: HttpNode,
   delay: DelayNode,
   result: ResultNode,
+  email: EmailNode
 };
 
 let id = 0;
@@ -33,29 +37,50 @@ function App() {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [rfInstance, setRfInstance] = useState(null);
 
+
+  
   const handleTestWorkflow = async () => {
-    if (!rfInstance) return;
+  if (!rfInstance) return;
 
-    const allNodes = rfInstance.getNodes();
-    const allEdges = rfInstance.getEdges();
+  const allNodes = rfInstance.getNodes();
+  const allEdges = rfInstance.getEdges();
 
-    // Walidacja
-    const validationErrors = logicRegistry.validateAll(allNodes);
-    if (validationErrors.length > 0) {
-      console.warn('❌ Walidacja zakończona błędami:');
-      validationErrors.forEach((err) => console.warn(err));
-      alert(`Workflow zatrzymany z ${validationErrors.length} błędami`);
-      return;
+  // Walidacja
+  const validationErrors = logicRegistry.validateAll(allNodes);
+  if (validationErrors.length > 0) {
+    console.warn('❌ Walidacja zakończona błędami:');
+    validationErrors.forEach((err) => console.warn(err));
+    alert(`Workflow stopped with errors: ${validationErrors.length}`);
+    return;
+  }
+
+  // 🔄 Reset statusów i outputów wszystkich node'ów
+  await new Promise((resolve) => {
+    setNodes((prev) =>
+      prev.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          status: undefined,
+          output: undefined,
+          // 🔁 zachowaj input — może być potrzebny przy dalszym flow
+          input: n.data.input,
+        },
+      }))
+    );
+    setTimeout(resolve, 150); // małe opóźnienie dla efektu animacji
+  });
+
+  const engine = new FlowEngine(allNodes, allEdges, setNodes);
+
+  // 🚀 Uruchamiamy tylko startowe node'y typu 'openai'
+  for (const node of allNodes) {
+    if (node.type === 'openai') {
+      await engine.executeFrom(node.id);
     }
+  }
+};
 
-    const engine = new FlowEngine(allNodes, allEdges, setNodes);
-
-    for (const node of allNodes) {
-      if (node.type === 'openai') {
-        await engine.executeFrom(node.id);
-      }
-    }
-  };
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
 
