@@ -11,6 +11,10 @@ function OpenAiNodeConfig({ onClose, onSave, config }) {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
 
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+
+
   const handleSave = () => {
     onSave({ tool, prompt, connectionStatus: status });  // ← przekazujemy zmiany do node’a
     onClose();
@@ -78,7 +82,57 @@ function OpenAiNodeConfig({ onClose, onSave, config }) {
           </select>
 
           <label>Prompt:</label>
-          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={4} />
+
+          <textarea
+            value={prompt}
+            onChange={(e) => {
+            setPrompt(e.target.value);
+            const textBeforeCursor = e.target.value.slice(0, e.target.selectionStart);
+            if (textBeforeCursor.endsWith('{{')) {
+              setShowDropdown(true);
+              setCursorPosition(e.target.selectionStart);
+              } else {
+              setShowDropdown(false);
+              }
+            }}
+            onKeyUp={(e) => {
+            const textBeforeCursor = e.target.value.slice(0, e.target.selectionStart);
+              if (textBeforeCursor.endsWith('{{')) {
+                setShowDropdown(true);
+                setCursorPosition(e.target.selectionStart);
+              }
+            }}
+            rows={4}
+          />
+
+          {showDropdown && config?.input && Object.keys(config.input).length && (
+            <div style={{
+            backgroundColor: '#1e1e1e',
+            border: '1px solid #fa6926',
+            borderRadius: 4,
+            marginTop: 4,
+            padding: 4,
+            position: 'absolute',
+            zIndex: 10
+          }}>
+          {Object.keys(config.input).map((v) => (
+            <div
+              key={v}
+              style={{ padding: '4px 8px', cursor: 'pointer' }}
+              onClick={() => {
+              const before = prompt.slice(0, cursorPosition);
+              const after = prompt.slice(cursorPosition);
+              const newPrompt = before + v + '}}' + after;
+              setPrompt(newPrompt);
+              setShowDropdown(false);
+            }}
+          >
+            {v}
+      </div>
+    ))}
+  </div>
+)}
+
 
           <button onClick={testConnection} disabled={loading}>
             {loading ? 'Sending...' : 'Test connection'}

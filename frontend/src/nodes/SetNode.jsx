@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Handle, Position, useReactFlow } from 'reactflow';
-import openaiIcon from '../assets/chatgpt.png';
-import OpenAiNodeConfig from '../components/OpenAiNodeConfig';
+import SetNodeConfig from '../components/SetNodeConfig';
 import useNodeContextMenuHandler from '../hooks/useNodeContextMenuHandler';
 import useNodeErrorTooltip from '../hooks/useNodeErrorTooltip';
+import setIcon from '../assets/set.png'; // np. ikonka koła zębatego
 
-
-function OpenAiNode({ id, data }) {
+function SetNode({ id, data }) {
   const [showConfig, setShowConfig] = useState(false);
   const { setNodes } = useReactFlow();
 
@@ -18,14 +17,6 @@ function OpenAiNode({ id, data }) {
     );
   };
 
-  const borderColor = 
-  {
-  success: '#3aff64',
-  executing: '#ffcc00',
-  error: '#fa3434',
-  }[data.status] || '#fa6926';
-
-  const connectionStatus = data?.connectionStatus;
   const handleContextMenu = useNodeContextMenuHandler(id);
   const { title } = useNodeErrorTooltip(id, data);
 
@@ -34,37 +25,26 @@ function OpenAiNode({ id, data }) {
       title={title}
       onContextMenu={handleContextMenu}
       style={{
-        background: '#2c2c2c',
+        background: '#222',
         color: '#fff',
-        border: `2px solid ${borderColor}`,
+        border: `2px solid #fa6926`,
         borderRadius: 6,
         padding: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         minWidth: 100,
       }}
     >
-      <img src={openaiIcon} alt="OpenAI" style={{ width: 40, height: 40, marginBottom: 5 }} />
-      <div>{data.label}</div>
-
-      <div style={{ fontSize: '0.8em', color: '#aaa', marginBottom: 4 }}>
-        🔁 Optional input from previous node
-      </div>
-
-      {/* Status wizualny */}
-      {connectionStatus === 'valid' && <div style={{ color: '#3aff64', fontSize: 14 }}>✔</div>}
-      {connectionStatus === 'invalid' && <div style={{ color: '#fa6926', fontSize: 14 }}>✖</div>}
+      <img src={setIcon} alt="Set" style={{ width: 36, marginBottom: 5 }} />
+      <div>🛠 Set Fields</div>
 
       <button onClick={() => setShowConfig(true)}>⚙</button>
 
       {showConfig && (
-        <OpenAiNodeConfig
+        <SetNodeConfig
+          id={id}
           config={data}
           onSave={handleSave}
           onClose={() => setShowConfig(false)}
-          availableVariables={data.input ? Object.keys(data.input) : []}
+          setNodes={setNodes}
         />
       )}
 
@@ -74,4 +54,4 @@ function OpenAiNode({ id, data }) {
   );
 }
 
-export default OpenAiNode;
+export default SetNode;

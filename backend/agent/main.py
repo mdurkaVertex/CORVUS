@@ -28,12 +28,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/testAgent")
-async def test_agent(request: Request):
+
+@app.post("/agentWithWeb")
+async def agent_with_web(request: Request):
     data = await request.json()
-    api_key = data.get("apiKey")
-    prompt = data.get("prompt")
-    tool = data.get("tool", "none")
+    prompt = data.get("prompt", "")
+
+    try:
+        response = client.responses.create(
+            model="gpt-4o",
+            input=prompt,
+            instructions="You are a helpful assistant. Provide the user with asked informations using the web.",
+            tools=[
+                {
+                    "type": "web_search_preview",
+                    "search_context_size": "medium"
+                }
+            ]
+        )
+
+        return { "output": response.output_text }
+
+    except Exception as e:
+        return { "error": f"Agent with web error: {str(e)}" }
+
+
+@app.post("/agentBasic")
+async def agent_basic(request: Request):
+    data = await request.json()
+    prompt = data.get("prompt", "")
+    api_key = data.get("apiKey", None)
 
     try:
         if api_key:
@@ -42,16 +66,16 @@ async def test_agent(request: Request):
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": prompt }
             ]
         )
 
-        return {"output": response.choices[0].message.content}
+        return { "output": response.choices[0].message.content }
 
     except Exception as e:
-        return {"error": str(e)}
-    
+        return { "error": f"Basic agent error: {str(e)}" }
+
 
     
 @app.post("/sendEmail")

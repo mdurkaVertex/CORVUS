@@ -16,6 +16,7 @@ import HttpNode from './nodes/HttpNode';
 import DelayNode from './nodes/DelayNode';
 import ResultNode from './nodes/ResultNode';
 import EmailNode from './nodes/EmailNode';
+import SetNode from './nodes/SetNode';
 
 import FlowEngine from './engine/FlowEngine';
 import logicRegistry from './engine/initLogicRegistry';
@@ -25,7 +26,8 @@ const nodeTypes = {
   http: HttpNode,
   delay: DelayNode,
   result: ResultNode,
-  email: EmailNode
+  email: EmailNode,
+  set: SetNode
 };
 
 let id = 0;
