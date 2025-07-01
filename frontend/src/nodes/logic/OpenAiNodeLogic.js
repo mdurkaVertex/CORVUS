@@ -17,7 +17,7 @@ validate() {
     const prompt = (this.data.prompt || '').replace('{{input}}', input ?? '');
 
     const fullPrompt = input
-      ? `${prompt}\n\nAdditional input data:\n${typeof input === 'object' ? JSON.stringify(input, null, 2) : input}`
+      ? `${prompt}\n\nInput data:\n${typeof input === 'object' ? JSON.stringify(input, null, 2) : input}`
       : prompt;
 
     console.log(fullPrompt);
@@ -34,7 +34,11 @@ validate() {
     });
 
       const json = await response.json();
-      return json.output || json.error || 'no response';
+      const result = json.output || json.error || 'no response';
+
+      this.setOutputData(result); 
+      return result;
+
     } catch (err) {
       return `Open AI error: ${err.message}`;
     }

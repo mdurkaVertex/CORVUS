@@ -15,6 +15,8 @@ SMTP_PORT = int(os.getenv("SMTP_PORT"))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
+print(f"[SMTP] Connecting to {SMTP_HOST}:{SMTP_PORT} as {SMTP_USER}")
+
 client = OpenAI()
 
 app = FastAPI()

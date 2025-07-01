@@ -28,6 +28,21 @@ export default class BaseNodeLogic {
   }
 
   /**
+   * Ustawia dane wyjściowe i propaguje je do następnych node’ów.
+   */
+  setOutputData(output) {
+    this.data.output = output;
+
+    const nextNodeIds = this.getNextNodeIds();
+    for (const nodeId of nextNodeIds) {
+      const nextNode = this.nodes.find((node) => node.id === nodeId);
+      if (nextNode) {
+        nextNode.data.input = output;
+      }
+    }
+  }
+
+  /**
    * Główna metoda wykonawcza – do nadpisania przez klasy potomne.
    */
   async execute() {

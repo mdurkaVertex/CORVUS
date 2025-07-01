@@ -8,6 +8,8 @@ export default class DelayNodeLogic extends BaseNodeLogic {
     console.log(`⏳ DelayNode (${this.id}) passing through:`, input);
 
     await new Promise((res) => setTimeout(res, delay));
+
+    this.setOutputData(input);
     return input;
   }
 
